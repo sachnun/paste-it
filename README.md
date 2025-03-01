@@ -1,4 +1,4 @@
-# bun-react-tailwind-template
+# Paste It
 
 To install dependencies:
 
