@@ -1,26 +1,28 @@
-import { Database } from "bun:sqlite";
+import { sql } from "bun";
+import { format } from "timeago.js";
 
-const db = new Database(":memory:");
-const random = "substr(lower(hex(randomblob(4))), 1, 8)";
-db.run(`
+await sql`
     CREATE TABLE IF NOT EXISTS paste (
-        id TEXT PRIMARY KEY DEFAULT (${random}),
-        content TEXT
+        id TEXT PRIMARY KEY DEFAULT substring(md5(random()::text), 1, 8),
+        content TEXT,
+        created_at TIMESTAMP DEFAULT now()
     )
-`)
+`
 
-class Paste {
-    id: string | undefined;
-    content: string | undefined;
+interface Paste {
+    id: string;
+    content: string;
+    created_at: Date;
 }
 
 const server = Bun.serve({
     routes: {
         "/": {
             GET: async (req) => {
-                const pastes = db.query(`SELECT * FROM paste`)
-                    .as(Paste).all()
-                    .map(paste => new URL(String(paste.id), req.url));
+                const rows = await sql`SELECT id, created_at FROM paste`;
+                const pastes = rows.map((paste: Paste) => {
+                    return `${new URL(paste.id, req.url)} (${format(paste.created_at)})`
+                });
 
                 return new Response(pastes.join("\n"), { headers: { "Content-Type": "text/plain" } });
             },
@@ -28,23 +30,18 @@ const server = Bun.serve({
                 const content = await req.text();
                 if (!content) throw { message: "No content", errno: 400 };
 
-                const id = db
-                    .prepare(`INSERT INTO paste (content) VALUES (?) RETURNING id`)
-                    .as(Paste).get(content)?.id;
+                const [{ id }] = await sql`INSERT INTO paste (content) VALUES (${content}) RETURNING id`;
 
-                return Response.json({ id });
+                return new Response(new URL(String(id), req.url).toString(), { status: 201 });
             }
         },
         "/:id": {
             GET: async (req) => {
                 const { id } = req.params;
-                const paste = db
-                    .query(`SELECT * FROM paste WHERE id = ?`)
-                    .as(Paste).get(id);
+                const [{ content }] = await sql`SELECT content FROM paste WHERE id = ${id}`;
+                if (!content) throw { message: "Not found", errno: 404 };
 
-                if (!paste) throw { message: "Not found", errno: 404 };
-
-                return new Response(paste.content, { headers: { "Content-Type": "text/plain" } });
+                return new Response(content, { headers: { "Content-Type": "text/plain" } });
             }
         }
     },
