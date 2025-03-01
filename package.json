@@ -1,20 +1,24 @@
 {
   "name": "paste-it",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --watch run ./index.ts",
-    "build": "bun build --target bun --minify --sourcemap ./index.ts --outdir ./dist",
+    "dev": "bun --watch run ./src/index.ts",
+    "build": "bun build --target bun --minify --sourcemap ./src/index.ts --outdir ./dist",
     "start": "bun --smol run ./dist/index.js"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/react": "^19.0.10"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
+    "@types/react-dom": "^19.0.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "timeago.js": "^4.0.2"
   }
 }
