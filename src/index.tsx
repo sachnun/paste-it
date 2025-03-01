@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { isMobile } from "react-device-detect";
 
 export function App() {
     const contentRef = useRef<HTMLTextAreaElement>(null);
@@ -50,9 +51,22 @@ export function App() {
                     defaultValue=""
                     placeholder="Paste your content here..."
                 />
-                <p className="text-sm text-zinc-400">
-                    Press <kbd className="bg-zinc-600 px-1 rounded">Ctrl+S</kbd> to save and open in new tab
-                </p>
+                <div className="w-full">
+                    {!isMobile && (
+                        <p className="text-sm text-zinc-400">
+                            Press <kbd className="bg-zinc-600 px-1 rounded">Ctrl+S</kbd> to save and open in new tab
+                        </p>
+                    )}
+                    {isMobile && (
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className={`w-full px-4 py-2 rounded bg-zinc-600 text-white hover:bg-zinc-700 focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {loading ? 'Saving...' : 'Save'}
+                        </button>
+                    )}
+                </div>
             </form>
         </div>
     );
