@@ -32,7 +32,7 @@ const server = Bun.serve({
 
                 const [{ id }] = await sql`INSERT INTO paste (content) VALUES (${content}) RETURNING id`;
 
-                return new Response(new URL(String(id), req.url).toString(), { status: 201 });
+                return new Response(new URL(id, req.url).toString(), { status: 201 });
             }
         },
         "/:id": {
