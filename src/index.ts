@@ -1,4 +1,4 @@
-import { sql } from "bun";
+import { sql, serve } from "bun";
 import { format } from "timeago.js";
 import index from "./index.html";
 
@@ -17,7 +17,7 @@ interface Paste {
     created_at: Date;
 }
 
-const server = Bun.serve({
+const server = serve({
     routes: {
         "/": index,
         "/save": {
