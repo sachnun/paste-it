@@ -1,6 +1,6 @@
 import { sql, serve } from "bun";
 import { format } from "timeago.js";
-import index from "./index.html";
+// import index from "./index.html";
 
 const random = sql`substring(md5(random()::text), 1, 8)`.raw()
 await sql`
@@ -19,7 +19,7 @@ interface Paste {
 
 const server = serve({
     routes: {
-        "/": index,
+        // "/": index,
         "/save": {
             POST: async (req) => {
                 const content = await req.text();
